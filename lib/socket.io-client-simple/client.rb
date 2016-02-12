@@ -38,6 +38,12 @@ module SocketIO
                   __emit :disconnect
                   reconnect
                 end
+                if @state == :closed
+                  @websocket.close if @websocket.open?
+                  @state = :disconnect
+                  __emit :disconnect
+                  break
+                end
               end
               sleep 1
             end
@@ -118,6 +124,10 @@ module SocketIO
           return unless @state == :connect
           data.unshift event_name
           @websocket.send "42#{data.to_json}"
+        end
+        
+        def disconnect
+          @state = :closed
         end
 
       end
